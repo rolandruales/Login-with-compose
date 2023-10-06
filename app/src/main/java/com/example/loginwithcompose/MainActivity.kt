@@ -1,6 +1,7 @@
 package com.example.loginwithcompose
 
 import android.os.Bundle
+import android.widget.MediaController
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,144 +49,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.loginwithcompose.ui.theme.LoginWithComposeTheme
 
 class MainActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             LoginWithComposeTheme {
-                Column (
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ){
-                    Column (modifier = Modifier
-                        .weight(2f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally){
-                        LoginInterface()
-                        ForgetPassword()
-                    }
-                    Column (modifier = Modifier
-                        .weight(.1f)){
-                        SignUp()
-                    }
-
-                }
+                val navController = rememberNavController()
+                SetupNavGraph(navController = navController)
             }
         }
     }
 }
 
-@Composable
-fun LoginInterface() {
-    var username by remember {
-        mutableStateOf("")
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-    val context = LocalContext.current  // context must be inside composable function
-    val focusManager = LocalFocusManager.current    // focus manager
-
-    Row (
-        modifier = Modifier
-            .wrapContentHeight(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Column (
-            modifier = Modifier
-                .fillMaxWidth(0.9f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-
-            Image(painter = painterResource(id = R.drawable.friends1),
-                contentDescription = stringResource(id = R.string.friends),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(180.dp))
-
-            //USERNAME TEXT FIELD
-            OutlinedTextField(
-                value = username,
-                onValueChange = {
-                    if (it.length <= 15)
-                        username = it
-                    if (it.isEmpty())
-                        focusManager.clearFocus()
-                },
-                label = { Text(text = "Username")},
-                modifier = Modifier
-                    .fillMaxWidth(),
-                maxLines = 1,
-                singleLine = true,
-            )
-
-            //PASSWORD TEXT FIELD
-            OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    if (it.length <= 15)
-                        password = it
-                    if (it.isEmpty())
-                        focusManager.clearFocus()
-                },
-                label = { Text(text = "Password")},
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-            //LOGIN BUTTON
-            Button(
-                modifier = Modifier
-                    .height(50.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)),
-                onClick = {
-                    if (username == "Bokz" && password == "Bokz") {
-                        Toast.makeText(context,"Login successful!", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context,"Login failed!", Toast.LENGTH_SHORT).show()
-                    }
-                }) {
-                Text(
-                    text = "Login",
-                    fontSize = 20.sp
-                )
-            }
-        }
 
 
-    }
-}
-
-@Composable
-fun ForgetPassword() {
-    Row (
-    ){
-        TextButton(
-            onClick = { /*TODO*/ }) {
-            Text(text = "Forgot password?")
-        }
-    }
-}
-
-@Composable
-fun SignUp() {
-    Row (
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Text(text = "Don't have an account?")
-        TextButton(onClick = { /*TODO*/ }) {
-            Text(text = "Sign Up")
-        }
-    }
-}
 
 
