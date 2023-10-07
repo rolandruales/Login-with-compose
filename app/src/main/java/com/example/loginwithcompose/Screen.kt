@@ -1,7 +1,8 @@
 package com.example.loginwithcompose
 
 sealed class Screen(val route: String) {
-    object Login: Screen(route = "login_screen")
-    object Register: Screen(route = "register_screen")
-    object ForgotPassword: Screen(route = "forgot_password_screen")
+    data object Login: Screen(route = "login_screen")
+    data object Register: Screen(route = "register_screen")
+    data object ForgotPassword: Screen(route = "forgot_password_screen")
+    data object HomeScreen: Screen(route = "home_screen")
 }

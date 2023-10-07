@@ -30,11 +30,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun LoginScreen(
@@ -51,7 +54,7 @@ fun LoginScreen(
             .weight(2f),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally){
-            LoginInterface()
+            LoginInterface(navController)
             ForgetPassword(navController)
         }
         Column (modifier = Modifier
@@ -63,8 +66,10 @@ fun LoginScreen(
 
 @Composable
 fun LoginInterface(
-
+    navController: NavHostController
 ) {
+    val auth = Firebase.auth
+
     var username by remember {
         mutableStateOf("")
     }
@@ -97,7 +102,7 @@ fun LoginInterface(
             OutlinedTextField(
                 value = username,
                 onValueChange = {
-                    if (it.length <= 15)
+                    if (it.length <= 25)
                         username = it
                     if (it.isEmpty())
                         focusManager.clearFocus()
@@ -112,8 +117,9 @@ fun LoginInterface(
             //PASSWORD TEXT FIELD
             OutlinedTextField(
                 value = password,
+                visualTransformation = PasswordVisualTransformation(),
                 onValueChange = {
-                    if (it.length <= 15)
+                    if (it.length <= 25)
                         password = it
                     if (it.isEmpty())
                         focusManager.clearFocus()
@@ -131,11 +137,23 @@ fun LoginInterface(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(50.dp, 50.dp, 50.dp, 50.dp)),
                 onClick = {
-                    if (username == "Bokz" && password == "Bokz") {
-                        Toast.makeText(context,"Login successful!", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context,"Login failed!", Toast.LENGTH_SHORT).show()
+//                    if (username == "Bokz" && password == "Bokz") {
+//                        Toast.makeText(context,"Login successful!", Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        Toast.makeText(context,"Login failed!", Toast.LENGTH_SHORT).show()
+//                    }
+                    auth.signInWithEmailAndPassword(
+                        username.trim(),
+                        password.trim()
+                    ).addOnCompleteListener() {task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(context,"Login successful!", Toast.LENGTH_SHORT).show()
+                            navController.navigate(route = Screen.HomeScreen.route)
+                        } else {
+                            Toast.makeText(context,"Login failed!", Toast.LENGTH_SHORT).show()
+                        }
                     }
+
                 }) {
                 Text(
                     text = "Login",

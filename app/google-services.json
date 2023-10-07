@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "647421801229",
+    "project_id": "login-with-compose-91c48",
+    "storage_bucket": "login-with-compose-91c48.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647421801229:android:5b27845a4c76b6b177b644",
+        "android_client_info": {
+          "package_name": "com.example.loginwithcompose"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlDVX3obsy69JZUoB5O7B7AsAp6GCrwvU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

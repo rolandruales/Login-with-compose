@@ -23,12 +23,17 @@ fun SetupNavGraph(
         composable(
             route = Screen.Register.route
         ) {
-            RegisterScreen()
+            RegisterScreen(navController)
         }
         composable(
             route = Screen.ForgotPassword.route
         ) {
-            ForgotPasswordScreen()
+            ForgotPasswordScreen(navController)
+        }
+        composable(
+            route = Screen.HomeScreen.route
+        ) {
+            HomeScreen(navController)
         }
     }
 }
