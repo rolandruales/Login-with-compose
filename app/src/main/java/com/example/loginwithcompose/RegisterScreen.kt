@@ -1,5 +1,8 @@
 package com.example.loginwithcompose
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,42 +26,53 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.ktx.userProfileChangeRequest
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+
+private const val TAG = "Register"
 
 @Composable
 fun RegisterScreen(
     navController: NavHostController
 ) {
 
-    var firstName by remember {
+    var firstName by rememberSaveable {
         mutableStateOf("")
     }
-    var lastName by remember {
+    var lastName by rememberSaveable {
         mutableStateOf("")
     }
-    var email by remember {
+    var email by rememberSaveable {
         mutableStateOf("")
     }
-    var userName by remember {
+    var userName by rememberSaveable {
         mutableStateOf("")
     }
-    var password by remember {
+    var password by rememberSaveable {
         mutableStateOf("")
     }
 
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current    // focus manager
 
     Scaffold(
@@ -101,7 +115,7 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = firstName,
                     onValueChange = {
-                        if (it.length <= 15)
+                        if (it.length <= 25)
                             firstName = it
                         if (it.isEmpty())
                             focusManager.clearFocus()
@@ -117,7 +131,7 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = lastName,
                     onValueChange = {
-                        if (it.length <= 15)
+                        if (it.length <= 25)
                             lastName = it
                         if (it.isEmpty())
                             focusManager.clearFocus()
@@ -133,7 +147,7 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = email,
                     onValueChange = {
-                        if (it.length <= 15)
+                        if (it.length <= 25)
                             email = it
                         if (it.isEmpty())
                             focusManager.clearFocus()
@@ -149,7 +163,7 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = userName,
                     onValueChange = {
-                        if (it.length <= 15)
+                        if (it.length <= 25)
                             userName = it
                         if (it.isEmpty())
                             focusManager.clearFocus()
@@ -165,7 +179,7 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = {
-                        if (it.length <= 15)
+                        if (it.length <= 25)
                             password = it
                         if (it.isEmpty())
                             focusManager.clearFocus()
@@ -179,7 +193,32 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(20.dp))
                 // REGISTER BUTTON
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                              if (firstName.isNotEmpty() &&
+                                  lastName.isNotEmpty() &&
+                                  email.isNotEmpty() &&
+                                  userName.isNotEmpty() &&
+                                  password.isNotEmpty()) {
+                                  if (password.length <= 5) {
+                                      Toast.makeText(
+                                          context,
+                                          "Password minimum length is 6",
+                                          Toast.LENGTH_SHORT
+                                      ).show()
+                                  } else {
+                                      CoroutineScope(Dispatchers.IO).launch {
+                                          signUpNewUser(
+                                              firstName,
+                                              lastName,
+                                              email,
+                                              userName,
+                                              password,
+                                              context
+                                          )
+                                      }
+                                  }
+                              }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
@@ -201,4 +240,62 @@ fun RegisterScreen(
 @Preview
 fun RegisterPreview() {
     RegisterScreen(rememberNavController())
+}
+
+
+fun addUserInfoToDatabase(
+     firstName: String,
+     lastName: String,
+     email: String,
+     userName: String,
+     context: Context
+) {
+    val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    val dbUser: CollectionReference = db.collection("user")
+    val user = User(firstName, lastName, email, userName)
+
+    dbUser.add(user).addOnSuccessListener {
+        Toast.makeText(
+            context,
+            "Account successfully created!",
+            Toast.LENGTH_SHORT
+        ).show()
+    }.addOnFailureListener { e ->
+        Toast.makeText(
+            context,
+            "Failed to create account \n$e",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+}
+
+fun signUpNewUser(
+    firstName: String,
+    lastName: String,
+    email: String,
+    userName: String,
+    password: String,
+    context: Context,
+) {
+    val auth = Firebase.auth
+    auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener() { signUp ->
+            if (signUp.isSuccessful) {
+                Log.d(TAG, "Sign up success!")
+                addUserInfoToDatabase(
+                    firstName,
+                    lastName,
+                    email,
+                    userName,
+                    context
+                )
+
+            } else {
+                Toast.makeText(
+                    context,
+                    "Email already used \n$email $password",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 }
