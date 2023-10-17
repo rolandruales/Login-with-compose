@@ -1,1 +1,2 @@
-Simple Log-in app using Jetpack Compose and Cloud firestore for database
+# Login with Compose
+## Login application for Android OS
